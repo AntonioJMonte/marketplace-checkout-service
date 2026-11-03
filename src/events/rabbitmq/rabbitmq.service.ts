@@ -76,6 +76,43 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
         }
     }
 
+
+    // the exchange is the message router, it decides which queue the message goes to
+    async publishMessage(exchange: string, routingKey: string, message: any): Promise<void> {
+        try {
+
+            if (!this.channel) {
+                this.logger.warn('RabbitMQ channel not available, skipping message publish'); 
+                return;
+            }
+
+            // the 'topic' type allows to use advanced routing
+            await this.channel.assertExchange(exchange, 'topic', { durable: true })
+            const messageBuffer = Buffer.from(JSON.stringify(message))
+
+            const published = this.channel.publish(
+                exchange, 
+                routingKey, 
+                messageBuffer,
+                {
+                    persistent: true,
+                    timestamp: Date.now(),
+                    contentType: 'application/json'
+            })
+
+            if (!published) {
+                throw new Error('Failed to publish message to RabbitMQ')
+            }
+
+            this.logger.log(`Message published to ${exchange}:${routingKey}`)
+            this.logger.debug(`Message content: ${JSON.stringify(message)}`)
+
+        } catch (error) {
+            this.logger.error(`Error publishing message to RabbitMQ:`, error)
+        }
+
+    }
+
     getChannel(): amqp.Channel {
         return this.channel
     }
@@ -83,4 +120,5 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
     getConnection(): amqp.ChannelModel {
         return this.connection
     }
+
 }
