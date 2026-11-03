@@ -96,8 +96,10 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
                 messageBuffer,
                 {
                     persistent: true,
+                    contentType: 'application/json',
+                    messageId: message.eventId,
+                    // correlationId: message.metadata?.correlationId,
                     timestamp: Date.now(),
-                    contentType: 'application/json'
             })
 
             if (!published) {
@@ -130,7 +132,7 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
                     durable: true, 
                     arguments: {
                         'x-message-ttl': 86400000,
-                        'x-message-length': 10000
+                        'x-max-length': 10000
                     }
             })
 

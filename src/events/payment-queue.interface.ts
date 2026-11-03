@@ -1,13 +1,21 @@
 export interface  PaymentOrderMessage {
+    eventId: string;
+    version: 1;
     orderId: number;
     userId: number;
-    amount: number;
+    amountInCents: number;
+    currency: 'BRL';
     items: Array<{
         productId: number;
         quantity: number;
-        price: number;
+        unitPriceInCents: number;
     }>;
-    paymentMethod: string;
+    paymentMethod: 'pix' | 'credit_card' | 'boleto' | 'debit_card' ;
     description?: string;
-    createdAt?: Date;
+    createdAt?: string;
+    metadata?: {
+        service: string;
+        timestamp: string;
+        // correlationId: string
+    }
 }
