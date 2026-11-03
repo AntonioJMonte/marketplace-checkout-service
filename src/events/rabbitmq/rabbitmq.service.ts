@@ -113,6 +113,57 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
 
     }
 
+    async subscribeToQueue (
+        queueName: string,
+        exchange: string,
+        routingKey: string,
+        callback: (message: any) => Promise<void>,
+    ): Promise<void> {
+        try {
+
+            if (!this.channel) {
+                throw new Error ('RabbitMQ channel not available')
+            }
+
+            await this.channel.assertExchange(exchange, 'topic', { durable: true })
+            const queue = await this.channel.assertQueue(queueName, { 
+                    durable: true, 
+                    arguments: {
+                        'x-message-ttl': 86400000,
+                        'x-message-length': 10000
+                    }
+            })
+
+            // determines the type of message the queue receives
+            await this.channel.bindQueue(queue.queue, exchange, routingKey)
+
+            // how many messages will be processed at a time
+            await this.channel.prefetch(1)
+
+            // consume the messages
+            await this.channel.consume(queue.queue, async (msg) => {
+                if (msg) {
+                    try {
+
+                        const message = JSON.parse(msg.content.toString())
+                        this.logger.log(`Message received from queue: ${queueName}`)
+                        this.logger.debug(`Message content: ${JSON.stringify(message)}`)
+                        await callback(message)
+
+                        this.channel.ack(msg)
+                        this.logger.log(`Message processed successfully from queue: ${queueName}`)
+                    } catch (error) {
+                        this.logger.error(`Error processing message: `, error)
+                        this.channel.nack(msg, false, false)
+                    }
+                }
+            })
+
+        } catch (error) {
+            this.logger.error(`Error subscribing to queue  ${queueName}:`, error)
+        }
+    }
+
     getChannel(): amqp.Channel {
         return this.channel
     }
