@@ -115,6 +115,7 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
 
     }
 
+    // method to consume queue
     async subscribeToQueue (
         queueName: string,
         exchange: string,

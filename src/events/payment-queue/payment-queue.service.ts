@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RabbitmqService } from '../rabbitmq/rabbitmq.service.js';
 import { PaymentOrderMessage } from '../payment-queue.interface.js';
-import { randomUUID } from 'crypto';
 
 @Injectable()
 export class PaymentQueueService {

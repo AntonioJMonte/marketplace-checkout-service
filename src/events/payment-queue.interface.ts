@@ -1,6 +1,5 @@
 export interface  PaymentOrderMessage {
     eventId: string;
-    version: 1;
     orderId: number;
     userId: number;
     amountInCents: number;
