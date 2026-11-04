@@ -21,6 +21,7 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
         await this.disconnect()
     }
 
+
     private async connect() {
 
         try {
