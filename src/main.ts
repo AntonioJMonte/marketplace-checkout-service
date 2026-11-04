@@ -19,6 +19,6 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3003
   await app.listen(port);
-  console.log(`Checkout service running on port ${port}`)
+  console.log(`Checkout Service running on port ${port}`)
 }
 await bootstrap();
