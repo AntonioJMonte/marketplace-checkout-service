@@ -34,6 +34,7 @@ export class PaymentQueueService {
 
             this.logger.log (
                 `Payment order published successfully: ` +
+                `eventId = ${paymentOrder.eventId}` +
                 `orderId = ${paymentOrder.orderId}` +
                 `amount = ${paymentOrder.amountInCents}` +
                 `userId = ${paymentOrder.userId}`
@@ -57,6 +58,11 @@ export class PaymentQueueService {
 
     private validatePaymentOrder(paymentOrder: PaymentOrderMessage): boolean {
         
+        if (!paymentOrder.eventId) {
+            this.logger.error('Invalid payment order: missing eventId');
+            return false
+        }
+
         if (!paymentOrder.orderId) {
             this.logger.error('Invalid payment order: missing orderId');
             return false
